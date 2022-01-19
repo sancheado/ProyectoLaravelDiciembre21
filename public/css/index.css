@@ -1,0 +1,25 @@
+*{margin:0;padding: 0;box-sizing: border-box;}
+body {margin: auto;padding: 50px;}
+
+.titulo{text-align: center; margin: 10px;padding: 5px;
+line-height: 32px;font-weight: 600;color:#46BB6C;
+font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;}
+
+.logo{width: 10vw;margin:0 auto;}
+.containerLogo{width: 12%!important;margin:0 auto;}
+.miConte{width: 65vw!important;margin:5px}
+.table{display:none;}
+table{width: 65vw;color:#fff;margin:15px auto;}
+table th[scope="col"]{line-height: 35px;font-weight: 600;text-align: center;color:#46BB6C;}
+table td{padding: 20px;}
+table td[scope="row"]{line-height: 30px;font-weight: 300;}
+table td[scope="row txt"]{text-align: center;}
+table td[scope="row num"]{text-align: right;}
+table td a{color:#46bb6c;}
+table td a:hover{color:#fff;}
+.filaMenu{padding: 30px;margin:15px auto;}
+input[type=text],input[type=password],input[type=number], select {width: 100%;padding: 12px 20px;margin: 8px 0;display: inline-block;border: 1px solid #ccc;border-radius: 4px;box-sizing: border-box;}
+input[type=submit] {width: 100%;background-color: #4CAF50;color: white;padding: 14px 20px;margin: 8px 0;border: none;border-radius: 4px;cursor: pointer;}
+input[type=submit]:hover {background-color: #45a049;}
+div {border-radius: 5px;background-color: #f2f2f2;padding: 20px;}
+form{width: 55vw;margin:10px auto;padding: 10px;}
