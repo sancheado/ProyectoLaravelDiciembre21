@@ -1,68 +1,64 @@
-# "version" defines the version of the specification that the file adheres to. Version 3.8 is the current version.
-version: "3.8"
-
-# "services" defines the set of containers we want to run as part of our application.
+version: '3'
 services:
-  # "nginx" is the name of the container.
 
-  nginx:
-    # builds the Docker image from the Dockerfile and a context.
+  #PHP Service
+  app:
     build:
-      # "context" defines the location where the Dockerfile is located.
-      context: docker/nginx
-      # "dockerfile" defines name of the Dockerfile.
-      dockerfile: dockerfile
-
-    # "ports" defines the ports that the container maps to the host. In this case the order is HOST_PORT:CONTAINER_PORT.
-    ports:
-      - "8083:80"
-
-    # "volumes" defines the volumes that the container will use. In this case, we mount them as HOST_PATH:CONTAINER_PATH.
-    volumes:
-      - ./docker/nginx/config/default.conf:/etc/nginx/conf.d/default.conf
-      - .:/code
-
-    # "networks" defines the name of the network that the container will be connected to.
-    networks:
-      - jsanmate-elcampico
-
-    # "depends_on" will wait for the specified containers to be ready before starting this container.
-    depends_on: 
-      - php
-
-  php:
-    build:
-      context: docker/php
-      dockerfile: dockerfile
-    volumes:
-      - ./docker/php/config/log.conf:/usr/local/etc/php-fpm.d/zz-log.conf
-      - .:/code
-    networks:
-      - jsanmate-elcampico
-    depends_on:
-      - mariadb
-
-  mariadb:
-    image: yobasystems/alpine-mariadb:10.5.11
-    # environment defines the environment variables that the container will use.
+      context: .
+      dockerfile: Dockerfile
+    image: digitalocean.com/php
+    container_name: app
+    restart: unless-stopped
+    tty: true
     environment:
-      MYSQL_ROOT_PASSWORD: 
-      MYSQL_DATABASE: practicajosesanchez
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 
-    ports:
-      - "4306:3306"
-    networks:
-      - jsanmate-elcampico
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
     volumes:
-      # When a DB container is started for the first time, it will create a database named as the ".sql" file name
-      # and import the data from the ".sql" file.
-      - ./sql/practicajosesanchez.sql:/docker-entrypoint-initdb.d/start.sql
-  #   - ./docker/mariadb/daemon_data:/var/lib/mysql # We don't need persistance for now
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-network
 
-# "networks" defines the set of networks that the containers will be connected to.
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: password
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - app-network
+
+#Docker Networks
 networks:
-  jsanmate-elcampico:
-    # bridge is the default network type, it's used for container-container communication and acts as NAT to the host,
-    # so you can connect to them.
+  app-network:
     driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local
