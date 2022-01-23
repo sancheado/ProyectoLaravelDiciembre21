@@ -1,43 +1,37 @@
-version: '3'
+version: '3.8'
 services:
-
+ 
   #PHP Service
-  app:
+  php:
     build:
       context: .
       dockerfile: Dockerfile
-    image: digitalocean.com/php
-    container_name: app
+    image: cloudsigma.com/php
+    container_name: php
     restart: unless-stopped
     tty: true
     environment:
-      SERVICE_NAME: app
+      SERVICE_NAME: php
       SERVICE_TAGS: dev
-    working_dir: /var/www
-    volumes:
-      - ./:/var/www
-      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    working_dir: /php
     networks:
-      - app-network
-
+      - php-network
+ 
   #Nginx Service
-  webserver:
+  nginx:
     image: nginx:alpine
-    container_name: webserver
+    container_name: nginx
     restart: unless-stopped
     tty: true
     ports:
-      - "80:80"
+      - "80:9090"
       - "443:443"
-    volumes:
-      - ./:/var/www
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
     networks:
-      - app-network
-
+      - php-network
+ 
   #MySQL Service
   db:
-    image: mysql:5.7.22
+    image: mysql:5.7.32
     container_name: db
     restart: unless-stopped
     tty: true
@@ -45,20 +39,13 @@ services:
       - "3306:3306"
     environment:
       MYSQL_DATABASE: practicajosesanchez
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: 
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
-    volumes:
-      - ./dbRellena:/var/lib/mysql/
-      - ./mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - app-network
-
+ 
 #Docker Networks
 networks:
   app-network:
     driver: bridge
-#Volumes
-volumes:
-  dbdata:
-    driver: local
