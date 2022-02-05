@@ -1,0 +1,45 @@
+version: '3'
+
+networks:
+  practica_laravel:
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx_practica_laravel
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - practica_laravel
+
+  mysql:
+    image: mysql:8.0.27
+    container_name: mysql_practica_laravel
+    tty: true
+    ports:
+      - "4306:3306"
+    environment:
+      MYSQL_DATABASE: practicajosesanchez
+      MYSQL_USER: jose
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - practica_laravel
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php_practica_laravel
+    volumes:
+        - ./:/var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - practica_laravel
